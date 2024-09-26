@@ -18,15 +18,13 @@ exports.getBookById = (req, res, next) => {
 };
 
 exports.createBook = (req, res, next) => {
-  console.log('Données reçues pour créer un livre :', req.body);
-  console.log('Fichier reçu :', req.file);
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
   const book = new Book({
-      ...bookObject,
-      userId: req.auth.userId,
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    ...bookObject,
+    userId: req.auth.userId,
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   });
 
   book.save()
