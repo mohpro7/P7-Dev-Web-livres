@@ -5,7 +5,6 @@ const path = require('path');
 const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/user');
 
-
 const app = express();
 
 app.use(cors());

@@ -68,13 +68,15 @@ export async function getBook(id) {
 
 export async function getBestRatedBooks() {
   try {
+    console.log('Requête envoyée vers:', API_ROUTES.BEST_RATED);
     const response = await axios({
       method: 'GET',
       url: `${API_ROUTES.BEST_RATED}`,
     });
+    console.log('Réponse reçue:', response.data); 
     return formatBooks(response.data);
   } catch (e) {
-    console.error(e);
+    console.error('Erreur dans getBestRatedBooks:', e);
     return [];
   }
 }
