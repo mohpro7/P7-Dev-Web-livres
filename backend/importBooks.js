@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const Book = require('./models/bookModel');
 const booksData = require('./data/books.json');
 
-mongoose.connect('mongodb+srv://mohpro7:x6Rtf2hyieWFMfFI@cluster0.s2xbu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
+require('dotenv').config();
+
+mongoose.connect(process.env.MONGO_URI, {
 })
   .then(() => {
     console.log('Connexion à MongoDB réussie !');

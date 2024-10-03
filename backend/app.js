@@ -1,17 +1,26 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
+const dotenv = require('dotenv');
 const path = require('path');
 const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/user');
 
+dotenv.config();
+
 const app = express();
+
+app.use(helmet());
+app.use(helmet.hidePoweredBy());
 
 app.use(cors());
 
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://mohpro7:x6Rtf2hyieWFMfFI@cluster0.s2xbu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
+app.use(helmet({ crossOriginResourcePolicy: { policy: "same-site" } }));
+
+mongoose.connect(process.env.MONGO_URI, {
 })
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(error => console.log('Connexion à MongoDB échouée : ', error));

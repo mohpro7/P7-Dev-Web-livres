@@ -22,6 +22,7 @@ function SignIn({ setUser }) {
   const signIn = async () => {
     try {
       setIsLoading(true);
+      console.log('Données envoyées à l\'inscription:', { email, password });
       const response = await axios({
         method: 'post',
         url: API_ROUTES.SIGN_IN,
@@ -39,7 +40,7 @@ function SignIn({ setUser }) {
         navigate('/');
       }
     } catch (err) {
-      console.log(err);
+      console.log('Erreur lors de l\'inscription:', err.response.data);
       setNotification({ error: true, message: err.message });
       console.log('Some error occured during signing in: ', err);
     } finally {
@@ -64,7 +65,13 @@ function SignIn({ setUser }) {
       }
       setNotification({ error: false, message: 'Votre compte a bien été créé, vous pouvez vous connecter' });
     } catch (err) {
-      setNotification({ error: true, message: err.message });
+      if (err.response) {
+        console.log('Erreur lors de l\'inscription:', err.response.data.message);
+        setNotification({ error: true, message: err.response.data.message });
+      } else {
+        console.log('Erreur générale:', err.message);
+        setNotification({ error: true, message: 'Une erreur est survenue lors de l\'inscription' });
+      }
       console.log('Some error occured during signing up: ', err);
     } finally {
       setIsLoading(false);
