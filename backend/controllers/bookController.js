@@ -18,7 +18,6 @@ exports.getBookById = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 };
 
-
 exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
@@ -63,16 +62,16 @@ exports.deleteBook = (req, res, next) => {
       if (!book) {
         return res.status(404).json({ message: 'Livre non trouvé' });
       }
-      if (book.userId !== req.auth.userId) {
+      if (req.auth.isAdmin || book.userId === req.auth.userId) {
+        const filename = book.imageUrl.split('/images/')[1];
+        fs.unlink(`images/${filename}`, () => {
+          Book.deleteOne({ _id: req.params.id })
+            .then(() => res.status(200).json({ message: 'Livre supprimé avec succès' }))
+            .catch(error => res.status(400).json({ error }));
+        });
+      } else {
         return res.status(401).json({ message: 'Non autorisé à supprimer ce livre' });
       }
-      const filename = book.imageUrl.split('/images/')[1];
-
-      fs.unlink(`images/${filename}`, () => {
-        Book.deleteOne({ _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Livre supprimé avec succès' }))
-          .catch(error => res.status(400).json({ error }));
-      });
     })
     .catch(error => res.status(500).json({ error }));
 };
@@ -81,4 +80,36 @@ exports.getBestRatedBooks = (req, res, next) => {
   Book.find().sort({ averageRating: -1 }).limit(3)
     .then(books => res.status(200).json(books))
     .catch(error => res.status(400).json({ error }));
+};
+
+exports.voteForBook = (req, res, next) => {
+  const bookId = req.params.id;
+  const userId = req.auth.userId;
+  const newRating = req.body.rating;
+
+  Book.findById(bookId)
+    .then(book => {
+      if (!book) {
+        return res.status(404).json({ message: 'Livre non trouvé' });
+      }
+      const existingVote = book.ratings.find(rating => rating.userId === userId);
+
+      if (existingVote) {
+        return res.status(400).json({ message: 'Vous avez déjà voté pour ce livre' });
+      }
+
+      book.ratings.push({
+        userId: userId,
+        grade: newRating
+      });
+
+      const totalRatings = book.ratings.length;
+      const sumRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0);
+      book.averageRating = sumRatings / totalRatings;
+
+      book.save()
+      .then(() => res.status(200).json({ message: 'Note ajoutée avec succès !', book }))
+      .catch(error => res.status(500).json({ error }));
+  })
+  .catch(error => res.status(500).json({ error }));
 };

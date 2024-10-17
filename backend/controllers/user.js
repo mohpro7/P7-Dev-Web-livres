@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
+
 require('dotenv').config();
 
 exports.signup = (req, res) => {
@@ -10,7 +11,8 @@ exports.signup = (req, res) => {
     .then(hash => {
       const user = new User({
         email: req.body.email,
-        password: hash
+        password: hash,
+        isAdmin: false
       });
       user.save()
         .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
@@ -33,7 +35,7 @@ exports.login = (req, res) => {
           res.status(200).json({
             userId: user._id,
             token: jwt.sign(
-              { userId: user._id },
+              { userId: user._id, isAdmin: user.isAdmin },
               process.env.JWT_SECRET,
               { expiresIn: '24h' }
             )
@@ -42,4 +44,14 @@ exports.login = (req, res) => {
         .catch(error => res.status(500).json({ error }));
 })
     .catch(error => res.status(500).json({ error }));
+};
+
+exports.testAdmin = (req, res) => {
+  console.log(req.auth);  // Vérifie ce qui est passé dans req.auth
+  
+  if (req.auth.isAdmin) {
+    return res.status(200).json({ message: 'Vous êtes bien connecté en tant qu\'administrateur !' });
+  } else {
+    return res.status(403).json({ message: 'Accès refusé, vous n\'êtes pas administrateur' });
+  }
 };

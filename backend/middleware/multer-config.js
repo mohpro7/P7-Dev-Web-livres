@@ -42,7 +42,7 @@ const compressImage = async (req, res, next) => {
         console.log('Fichier supprimé avec succès');
       }
     });
-        
+          
     req.file.path = outputPath;
     req.file.filename = `compressed_${req.file.filename}`;
 
