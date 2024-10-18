@@ -87,6 +87,10 @@ exports.voteForBook = (req, res, next) => {
   const userId = req.auth.userId;
   const newRating = req.body.rating;
 
+  if (newRating<1 || newRating>5) {
+    return res.status(404).json({ message: 'note doit être comprise entre 1 et 5'});
+  } else {
+  
   Book.findById(bookId)
     .then(book => {
       if (!book) {
@@ -103,9 +107,10 @@ exports.voteForBook = (req, res, next) => {
       return book.save();
     })
     .then(updatedBook => {
-      res.status(200).json({ message: 'Note ajoutée avec succès !', book: updatedBook });
+      res.status(200).json(updatedBook);
     })
     .catch(error => res.status(500).json({ error }));
+  }
 };
 
 const addRating = (book, userId, newRating) => {
@@ -117,5 +122,5 @@ const addRating = (book, userId, newRating) => {
 
   const totalRatings = book.ratings.length;
   const sumRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0);
-  book.averageRating = sumRatings / totalRatings;
+  book.averageRating = (sumRatings / totalRatings).toFixed(0)
 };
