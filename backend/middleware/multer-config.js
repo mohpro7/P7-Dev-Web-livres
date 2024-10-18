@@ -8,6 +8,7 @@ const MIME_TYPES = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
+  'image/avif': 'avif',
 };
 
 const storage = multer.diskStorage({
@@ -32,7 +33,7 @@ const compressImage = async (req, res, next) => {
 
     await sharp(req.file.path)
       .resize(800)
-      .jpeg({ quality: 70 })
+      .avif({ quality: 70 })
       .toFile(outputPath);
 
     fs.unlink(req.file.path, (err) => {

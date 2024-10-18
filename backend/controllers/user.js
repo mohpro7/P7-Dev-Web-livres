@@ -47,7 +47,7 @@ exports.login = (req, res) => {
 };
 
 exports.testAdmin = (req, res) => {
-  console.log(req.auth);  // Vérifie ce qui est passé dans req.auth
+  console.log(req.auth);
   
   if (req.auth.isAdmin) {
     return res.status(200).json({ message: 'Vous êtes bien connecté en tant qu\'administrateur !' });
