@@ -92,24 +92,30 @@ exports.voteForBook = (req, res, next) => {
       if (!book) {
         return res.status(404).json({ message: 'Livre non trouvé' });
       }
-      const existingVote = book.ratings.find(rating => rating.userId === userId);
 
+      const existingVote = book.ratings.find(rating => rating.userId === userId);
       if (existingVote) {
         return res.status(400).json({ message: 'Vous avez déjà voté pour ce livre' });
       }
 
-      book.ratings.push({
-        userId: userId,
-        grade: newRating
-      });
+      addRating(book, userId, newRating);
 
-      const totalRatings = book.ratings.length;
-      const sumRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0);
-      book.averageRating = sumRatings / totalRatings;
+      return book.save();
+    })
+    .then(updatedBook => {
+      res.status(200).json({ message: 'Note ajoutée avec succès !', book: updatedBook });
+    })
+    .catch(error => res.status(500).json({ error }));
+};
 
-      book.save()
-      .then(() => res.status(200).json({ message: 'Note ajoutée avec succès !', book }))
-      .catch(error => res.status(500).json({ error }));
-  })
-  .catch(error => res.status(500).json({ error }));
+const addRating = (book, userId, newRating) => {
+  
+  book.ratings.push({
+    userId: userId,
+    grade: newRating
+  });
+
+  const totalRatings = book.ratings.length;
+  const sumRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0);
+  book.averageRating = sumRatings / totalRatings;
 };
