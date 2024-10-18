@@ -1,7 +1,7 @@
 const multer = require('multer');
 const sharp = require('sharp');
 const path = require('path');
-const fs = require('fs').promises;
+const fs = require('fs');
 
 sharp.cache(false);
 
@@ -41,9 +41,8 @@ const compressImage = async (req, res, next) => {
 
     console.log('Conversion terminée, ajout d\'un délai avant suppression...');
 
-    setTimeout(async () => {
       try {
-        await fs.unlink(req.file.path);
+        await fs.promises.unlink(req.file.path);
         console.log('Fichier original supprimé avec succès.');
 
         req.file.path = outputPath;
@@ -54,7 +53,6 @@ const compressImage = async (req, res, next) => {
         console.error('Erreur lors de la suppression du fichier :', error);
         next(error);
       }
-    }, 500);
   } catch (error) {
     console.error('Erreur lors de la compression de l\'image', error);
     next(error);
